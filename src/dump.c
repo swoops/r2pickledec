@@ -325,10 +325,11 @@ static inline bool dump_dict(PrintInfo *nfo, PyObj *obj) {
 
 static inline bool dump_func(PrintInfo *nfo, PyObj *obj) {
 	PREPRINT ();
-	return printer_append (nfo, "__import__(\"")
-		&& PCOLORSTR (obj->py_func.module, offset)
-		&& printer_append (nfo, "\").")
-		&& PCOLORSTR (obj->py_func.name, fname)
+	return printer_append (nfo, "find_class(")
+		&& dump_obj (nfo, obj->py_func.module)
+		&& printer_append (nfo, ", ")
+		&& dump_obj (nfo, obj->py_func.name)
+		&& printer_append (nfo, ")")
 		&& newline(nfo, obj);
 }
 

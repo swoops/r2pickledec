@@ -36,8 +36,8 @@ static void py_obj_free(PyObj *obj) {
 		case PY_NONE:
 			break;
 		case PY_FUNC:
-			free ((void *)obj->py_func.module);
-			free ((void *)obj->py_func.name);
+			py_obj_free (obj->py_func.module);
+			py_obj_free (obj->py_func.name);
 			break;
 		case PY_WHAT:
 			r_list_free (obj->py_what);
@@ -588,15 +588,27 @@ static inline bool op_pop_mark(PMState *pvm) {
 	return false;
 }
 
-static inline bool split_module_str(RAnalOp *op, PyFunc *cl) {
+static inline PyObj *str_to_pystr(PMState *pvm, const char *str) {
+	PyObj *obj = py_obj_new (pvm, PY_STR);
+	if (obj) {
+		obj->py_str = strdup (str);
+		if (obj->py_str) {
+			return obj;
+		}
+	}
+	py_obj_free (obj);
+	return false;
+}
+
+static inline bool split_module_str(PMState *pvm, RAnalOp *op, PyFunc *cl) {
 	char *str = op_str_arg (op);
 	if (str) {
 		int len = r_str_split (str, ' ');
 		if (len == 2) {
-			cl->module = strdup (str);
+			cl->module = str_to_pystr (pvm, str);
 			char *name = (char *)r_str_word_get0 (str, 1);
 			if (R_STR_ISNOTEMPTY (name)) {
-				cl->name = strdup (name);
+				cl->name = str_to_pystr (pvm, name);
 			}
 		}
 		free (str);
@@ -606,7 +618,7 @@ static inline bool split_module_str(RAnalOp *op, PyFunc *cl) {
 
 static inline PyObj *glob_obj(PMState *pvm, RAnalOp *op) {
 	PyObj *obj = py_obj_new (pvm, PY_FUNC);
-	if (obj && split_module_str (op, &obj->py_func)) {
+	if (obj && split_module_str (pvm, op, &obj->py_func)) {
 		return obj;
 	}
 	py_obj_free (obj);
