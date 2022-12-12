@@ -633,6 +633,22 @@ static inline bool op_global(PMState *pvm, RAnalOp *op) {
 	return false;
 }
 
+static inline bool op_stack_global(PMState *pvm, RAnalOp *op) {
+	if (r_list_length (pvm->stack) >= 2) {
+		PyObj *obj = py_obj_new (pvm, PY_FUNC);
+		if (obj) {
+			PyFunc *func = &obj->py_func;
+			func->name = r_list_pop (pvm->stack);
+			func->module = r_list_pop (pvm->stack);
+			if (func->name && func->module && r_list_push (pvm->stack, obj)) {
+				return true;
+			}
+			py_obj_free (obj);
+		}
+	}
+	return false;
+}
+
 static inline bool insantiate(PMState *pvm, RAnalOp *op, PyObj *cls, PyObj *args) {
 	PyOp o = OP_INST;
 	if (!strcmp (op->mnemonic, "obj")) {
@@ -723,6 +739,8 @@ static inline bool exec_op(RCore *c, PMState *pvm, RAnalOp *op, char code) {
 		return op_inst (pvm, op);
 	case OP_GLOBAL:
 		return op_global (pvm, op);
+	case OP_STACK_GLOBAL:
+		return op_stack_global (pvm, op);
 	case OP_REDUCE:
 	case OP_NEWOBJ:
 	case OP_BUILD:
@@ -793,7 +811,6 @@ static inline bool exec_op(RCore *c, PMState *pvm, RAnalOp *op, char code) {
 	case OP_EXT4:
 	// PROTO 4
 	case OP_NEWOBJ_EX:
-	case OP_STACK_GLOBAL:
 	case OP_NEXT_BUFFER:
 	case OP_READONLY_BUFFER:
 

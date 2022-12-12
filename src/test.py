@@ -390,6 +390,19 @@ tests = [
 			stop
        """,
        "ret" : '{"stack":[{"offset":10,"type":"PY_WHAT","value":[{"offset":10,"Op":"Initial Object","args":[{"offset":2,"type":"PY_LIST","value":[]}]},{"offset":10,"Op":"additems","args":[{"offset":4,"type":"PY_INT","value":1},{"offset":6,"type":"PY_INT","value":2},{"offset":8,"type":"PY_INT","value":3}]}]}],"popstack":[]}'
+    }, {
+       "name" : "stack_global",
+       "asm" : """
+			proto 0x4
+            short_binstring "system"
+            short_binstring "os"
+            stack_global
+            short_binstring "whoami"
+            tuple1
+            reduce
+            stop
+       """,
+       "ret" : '{"stack":[{"offset":24,"type":"PY_WHAT","value":[{"offset":24,"Op":"Initial Object","args":[{"offset":14,"type":"PY_FUNC","value":{"module":{"offset":2,"type":"PY_STR","value":"system"},"name":{"offset":10,"type":"PY_STR","value":"os"}}}]},{"offset":24,"Op":"reduce","args":[{"offset":23,"type":"PY_TUPLE","value":[{"offset":15,"type":"PY_STR","value":"whoami"}]}]}]}],"popstack":[]}'
     }
 ]
 
