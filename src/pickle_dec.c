@@ -1221,9 +1221,14 @@ static int pickle_dec(void *user, const char *input) {
 
 // PLUGIN Definition Info
 RCorePlugin r_core_plugin_pickle_dec = {
-	.name = "pickle_dec",
-	.desc = "Decompile python pickles",
-	.license = "Apache",
+	.meta = {
+		.name = "pickle_dec",
+		.desc = "Decompile python pickles",
+		.author = "bemodtwz",
+		.version = NULL,
+		.license = "Apache",
+		.status = R_PLUGIN_STATUS_OK // ???
+	},
 	.call = pickle_dec,
 };
 
