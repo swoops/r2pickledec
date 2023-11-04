@@ -105,6 +105,7 @@ typedef struct pickle_machine_state {
 	HtUP *memo;
 	ut64 recurse;
 	bool break_on_stop;
+	bool nosplit;
 	ut64 start, offset, end;
 	bool verbose;
 	ut64 ver;

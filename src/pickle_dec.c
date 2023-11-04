@@ -12,6 +12,7 @@ static const char *help_msg[] = {
 	"pdP", "", "Decompile python pickle until STOP, eof or bad opcode",
 	"pdPj", "", "JSON output",
 	"pdPf", "", "Decompile and set pick.* flags from decompiled var names",
+	"pdPq", "", "Qucik flag, less accurate but faster results (No PY_SPLIT)",
 	NULL
 };
 
@@ -282,6 +283,9 @@ static inline bool split_what_recures(PMState *pvm, RList *list, PyObj *split) {
 }
 
 static bool add_splits(PMState *pvm, PyObj *obj, PyObj *split) {
+	if (pvm->nosplit) {
+		return true;
+	}
 	// skip previously seen (python allows `a.append(a)`)
 	if (obj->recurse == pvm->recurse) {
 		return true;
@@ -1196,6 +1200,11 @@ static int pickle_dec(void *user, const char *input) {
 	}
 
 	PMState state = {0};
+	if (strchr (input, 'q')) {
+		state.nosplit = true;
+	} else  {
+		state.nosplit = false;
+	}
 	if (init_machine_state (c, &state)) {
 		state.break_on_stop = true;
 		bool pvm_fin = run_pvm (c, &state);
