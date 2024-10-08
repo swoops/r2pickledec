@@ -86,7 +86,7 @@ tests = [
             float "1.2"
             stop
        """,
-       "ret" : '{"stack":[{"offset":2,"type":"PY_FLOAT","value":1.200000}],"popstack":[]}'
+       "ret" : '{"stack":[{"offset":2,"type":"PY_FLOAT","value":1.200}],"popstack":[]}'
     }, {
        "name" : "OP binfloat",
        "asm" : """
@@ -94,7 +94,7 @@ tests = [
             binfloat 1.2
             stop
        """,
-       "ret" : '{"stack":[{"offset":2,"type":"PY_FLOAT","value":1.200000}],"popstack":[]}'
+       "ret" : '{"stack":[{"offset":2,"type":"PY_FLOAT","value":1.200}],"popstack":[]}'
     }, {
        "name" : "Many memos work",
        "asm" : """
