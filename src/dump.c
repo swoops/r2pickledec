@@ -716,7 +716,7 @@ static inline bool dump_iter(PrintInfo *nfo, PyObj *obj) {
 
 static inline bool dump_glob(PrintInfo *nfo, PyObj *obj) {
 	PREPRINT (nfo, obj);
-	bool ret =  printer_append (nfo, "_find_class(");
+	bool ret =  printer_append (nfo, "_find_class(" /*)*/);
 	PrState *ps = printer_push_state (nfo, false);
 	if (!ps) {
 		return false;
@@ -726,6 +726,11 @@ static inline bool dump_glob(PrintInfo *nfo, PyObj *obj) {
 	ret &= dump_obj (nfo, obj->py_glob.module);
 	ret &= printer_append (nfo, ", ");
 	ret &= dump_obj (nfo, obj->py_glob.name);
+
+	ret &= printer_appendf (nfo, /*(*/", %sproto%s=%s%d%s)",
+		PALCOLOR (var), PALCOLOR (reset), // proto name format
+		PALCOLOR (var), obj->py_glob.proto, PALCOLOR (reset) // proto value
+	);
 
 	printer_pop_state (nfo);
 	ret &= printer_append (nfo, ")");
