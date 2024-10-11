@@ -108,7 +108,7 @@ typedef struct pickle_machine_state {
 	bool nosplit;
 	ut64 start, offset, end;
 	bool verbose;
-	ut64 ver;
+	int proto;
 	PyObj *free_obj; // single linked free list
 	ut64 buffernum; // count next buffers as you encouter them
 } PMState;

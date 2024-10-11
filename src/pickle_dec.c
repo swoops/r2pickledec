@@ -968,10 +968,9 @@ static inline bool exec_op(RCore *c, PMState *pvm, RAnalOp *op, char code) {
 	switch (code) {
 	// meta
 	case OP_PROTO:
+		pvm->proto = op->val;
 		if (pvm->start != pvm->offset) {
 			R_LOG_INFO ("op PROTO at 0x%"PFMT64x" not at start of pickle\n", pvm->offset);
-		} else {
-			pvm->ver = op->val;
 		}
 		break;
 	case OP_FRAME:
