@@ -536,6 +536,15 @@ tests = [
             stop
        """,
        "ret" : '{"stack":[{"offset":0,"type":"PY_INT","value":0},{"offset":3,"type":"PY_INT","value":42},{"offset":17,"type":"PY_TUPLE","value":[{"offset":0,"type":"PY_INT","prev_seen":".stack[0]"},{"offset":3,"type":"PY_INT","prev_seen":".stack[1]"}]}],"popstack":[]}'
+    }, {
+       "name" : "poping mark",
+       "asm" : """
+            string "this is the return value"
+            mark
+            pop
+            stop
+       """,
+       "ret" : '{"stack":[{"offset":0,"type":"PY_STR","value":"this is the return value"}],"popstack":[]}'
     }
 ]
 
