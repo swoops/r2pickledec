@@ -124,6 +124,14 @@ static inline PyObj *py_obj_new(PMState *pvm, PyType type) {
 	return obj;
 }
 
+static inline PyObj *py_obj_glob_new(PMState *pvm) {
+	PyObj *obj = py_obj_new (pvm, PY_GLOB);
+	if (obj) {
+		obj->py_glob.proto = pvm->proto;
+	}
+	return obj;
+}
+
 static inline PyObj *obj_stack_peek(RList *stack, bool dup) {
 	RListIter *iter;
 	PyObj *obj;
@@ -766,6 +774,7 @@ static inline PyObj *str_to_pystr(PMState *pvm, const char *str) {
 }
 
 // last resort, just make it into a call to `int("strnum")`
+// TODO just make a new fake pyt obj to handle this case
 static inline bool push_int_type_str(RCore *c, PMState *pvm, RAnalOp *op, bool longg) {
 	// building from ground up
 	PyObj *obj_child = py_obj_newstr (c, pvm, op);
@@ -804,10 +813,11 @@ static inline bool push_int_type_str(RCore *c, PMState *pvm, RAnalOp *op, bool l
 	obj_parent->reduce.args = obj_child;
 
 	// set global in reduce
-	obj_child = py_obj_new (pvm, PY_GLOB);
+	obj_child = py_obj_glob_new (pvm);
 	if (!obj_child) {
 		return false;
 	}
+	obj_child->py_glob.proto = -1; // This is a fake global item, so no real proto assigned
 	obj_child->py_glob.module = str_to_pystr (pvm, "builtins");
 	obj_child->py_glob.name = str_to_pystr (pvm, "int");
 	if (!obj_child->py_glob.module || !obj_child->py_glob.name) {
@@ -872,7 +882,7 @@ static inline bool op_int(RCore *c, PMState *pvm, RAnalOp *op) {
 }
 
 static inline PyObj *glob_obj(PMState *pvm, RAnalOp *op) {
-	PyObj *obj = py_obj_new (pvm, PY_GLOB);
+	PyObj *obj = py_obj_glob_new (pvm);
 	if (obj && split_module_str (pvm, op, &obj->py_glob)) {
 		return obj;
 	}
@@ -889,7 +899,7 @@ static inline bool op_global(PMState *pvm, RAnalOp *op) {
 
 static inline bool op_stack_global(PMState *pvm, RAnalOp *op) {
 	if (r_list_length (pvm->stack) >= 2) {
-		PyObj *obj = py_obj_new (pvm, PY_GLOB);
+		PyObj *obj = py_obj_glob_new (pvm);
 		if (obj) {
 			PyGlob *func = &obj->py_glob;
 			func->name = r_list_pop (pvm->stack);

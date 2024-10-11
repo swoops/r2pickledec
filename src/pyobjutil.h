@@ -116,6 +116,7 @@ typedef struct pickle_machine_state {
 typedef struct python_glob {
 	PyObj *module;
 	PyObj *name;
+	int proto; // different proto versions change how modules end up being looked up
 } PyGlob;
 
 typedef struct python_reduce {

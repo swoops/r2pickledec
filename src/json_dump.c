@@ -76,6 +76,9 @@ static inline bool py_glob(PJ *pj, PyObj *obj, RList *path) {
 	if (
 		pj_o (pj)
 
+		&& pj_k (pj, "proto")
+		&& pj_N (pj, obj->py_glob.proto)
+
 		&& path_push (path, strdup(".module"))
 		&& pj_k (pj, "module")
 		&& py_obj (pj, obj->py_glob.module, path)
