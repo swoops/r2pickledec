@@ -736,15 +736,6 @@ static inline bool op_mark(PMState *pvm) {
 	return false;
 }
 
-static inline bool op_pop(PMState *pvm) {
-	PyObj *obj = r_list_pop (pvm->stack);
-	if (obj) {
-		r_list_push (pvm->popstack, obj);
-		return true;
-	}
-	return false;
-}
-
 static inline bool op_pop_mark(PMState *pvm) {
 	if (pvm->metastack && r_list_length (pvm->metastack)) {
 		r_list_join (pvm->popstack, pvm->stack);
@@ -753,6 +744,14 @@ static inline bool op_pop_mark(PMState *pvm) {
 		return true;
 	}
 	return false;
+}
+
+static inline bool op_pop(PMState *pvm) {
+	if (r_list_length (pvm->stack)) {
+		PyObj *obj = r_list_pop (pvm->stack);
+		return obj && r_list_push (pvm->popstack, obj);
+	}
+	return op_pop_mark (pvm);
 }
 
 static inline PyObj *str_to_pystr(PMState *pvm, const char *str) {
