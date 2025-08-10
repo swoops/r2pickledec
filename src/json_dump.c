@@ -325,7 +325,7 @@ static bool json_dump_metastack(PJ *pj, RList *meta, RList *path) {
 }
 
 bool json_dump_state(PJ *pj, PMState *pvm) {
-	r_return_val_if_fail (pj && pvm, false);
+	R_RETURN_VAL_IF_FAIL (pj && pvm, false);
 	RList *path = r_list_newf (free);
 	bool ret = false;
 	if (path) {

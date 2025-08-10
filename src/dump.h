@@ -10,6 +10,7 @@ typedef struct print_state {
 } PrState;
 
 typedef struct print_info {
+	RCons *cons;
 	bool stack, popstack, metastack; // input from user
 
 	PyObj *reduce;

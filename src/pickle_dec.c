@@ -92,7 +92,7 @@ static inline bool init_machine_state(RCore *c, PMState *pvm) {
 		R_LOG_ERROR ("Arch must be set to picke, use `e asm.config = pickle`")
 		return false;
 	}
-	pvm->start = pvm->offset = c->offset;
+	pvm->start = pvm->offset = c->addr;
 	pvm->end = UT64_MAX; // TODO: allow user to set an end
 	pvm->verbose = r_config_get_b (c->config, "anal.verbose");
 
@@ -1188,23 +1188,22 @@ static inline bool run_pvm(RCore *c, PMState *pvm) {
 static inline bool dump_json(RCore *c, PMState *pvm) {
 	PJ *pj = r_core_pj_new (c);
 	if (pj && json_dump_state (pj, pvm)) {
-		r_cons_print (pj_string (pj));
+		r_cons_print (c->cons, pj_string (pj));
 		pj_free (pj);
 		return true;
 	}
 	return false;
 }
 
-static int pickle_dec(void *user, const char *input) {
+static bool pickle_dec(RCorePluginSession *cps, const char *input) {
 	if (!input || strncmp ("pdP", input, 3)) {
-		return 0;
+		return false;
 	}
 	input += 3;
-	RCore *c = (RCore *)user;
 
 	if (strchr (input, '?')) {
-		r_core_cmd_help (c, help_msg);
-		return 1;
+		r_core_cmd_help (cps->core, help_msg);
+		return true;
 	}
 
 	PMState state = {0};
@@ -1213,15 +1212,15 @@ static int pickle_dec(void *user, const char *input) {
 	} else  {
 		state.nosplit = false;
 	}
-	if (init_machine_state (c, &state)) {
+	if (init_machine_state (cps->core, &state)) {
 		state.break_on_stop = true;
-		bool pvm_fin = run_pvm (c, &state);
+		bool pvm_fin = run_pvm (cps->core, &state);
 		if (strchr (input, 'j')) {
-			dump_json(c, &state);
+			dump_json(cps->core, &state);
 		} else {
 			PrintInfo nfo;
 			state.recurse++;
-			if (print_info_init (&nfo, state.recurse, c)) {
+			if (print_info_init (&nfo, state.recurse, cps->core)) {
 				nfo.setflags = strchr (input, 'f');
 				if (!dump_machine( &state, &nfo, !pvm_fin)) {
 					R_LOG_ERROR ("Failed to dump pickle");
@@ -1233,7 +1232,7 @@ static int pickle_dec(void *user, const char *input) {
 		}
 	}
 	empty_state (&state);
-	return 1;
+	return true;
 }
 
 // PLUGIN Definition Info

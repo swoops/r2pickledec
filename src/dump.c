@@ -25,7 +25,7 @@ static inline void pstate_free(PrState *ps) {
 	}
 }
 
-static inline void pstate_drain(PrState *ps, bool freeit) {
+static inline void pstate_drain(RCons *cons, PrState *ps, bool freeit) {
 	if (ps && ps->out) {
 		char *buf = NULL;
 		if (freeit) {
@@ -35,14 +35,14 @@ static inline void pstate_drain(PrState *ps, bool freeit) {
 		} else {
 			buf = r_strbuf_drain_nofree (ps->out);
 		}
-		r_cons_print (buf);
+		r_cons_print (cons, buf);
 		free (buf);
 	}
 }
 
 static inline void printer_drain(PrintInfo *nfo) {
 	PrState *ps = r_list_last (nfo->outstack);
-	pstate_drain (ps, false);
+	pstate_drain (nfo->cons, ps, false);
 }
 
 static inline bool printer_append(PrintInfo *nfo, const char *str) {
@@ -73,7 +73,7 @@ static inline PrState *printer_push_state(PrintInfo *nfo, bool prepend) {
 	PrState *ps = R_NEW0 (PrState);
 	PrState *last = r_list_last (nfo->outstack);
 
-	if (!r_list_push (nfo->outstack, ps)) {
+	if (!ps || !r_list_push (nfo->outstack, ps)) {
 		pstate_free (ps);
 		return NULL;
 	}
@@ -92,7 +92,7 @@ static bool printer_pop_state(PrintInfo *nfo) {
 	R_RETURN_VAL_IF_FAIL (ps, false);
 	bool ret = true;
 	if (ps->prepend) {
-		pstate_drain (ps, true);
+		pstate_drain (nfo->cons, ps, true);
 	} else {
 		if (ps->out && r_strbuf_length (ps->out)) {
 			char *buf = r_strbuf_drain (ps->out);
@@ -1067,7 +1067,7 @@ bool dump_machine(PMState *pvm, PrintInfo *nfo, bool warn) {
 	}
 	printer_pop_state (nfo);
 	if (!ret || warn) {
-		r_cons_print ("Raise Exception('INCOMPLETE!!! Pickle did not completely extract, check error log')\n");
+		r_cons_print (nfo->cons, "Raise Exception('INCOMPLETE!!! Pickle did not completely extract, check error log')\n");
 	}
 	return ret;
 }
@@ -1081,7 +1081,11 @@ bool print_info_init(PrintInfo *nfo, ut64 recurse, RCore *core) {
 	memset (nfo, 0, sizeof (*nfo));
 	nfo->stack = true;
 	nfo->popstack = true;
-	if (core && core->cons && core->cons->context) {
+	if (!core || !core->cons) {
+		return false;
+	}
+	nfo->cons = core->cons;
+	if (core->cons->context) {
 		if (r_config_get_b (core->config, "scr.color")) {
 			if (r_cons_is_tty () || r_config_get_b (core->config, "scr.color.pipe")) {
 				nfo->pal = &core->cons->context->pal;
