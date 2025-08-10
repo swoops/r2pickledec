@@ -11,7 +11,7 @@ bool dump_obj_no_pre(PrintInfo *nfo, PyObj *obj);
 
 static inline RStrBuf *printer_getout(PrintInfo *nfo, bool create) {
 	PrState *ps = r_list_last (nfo->outstack);
-	r_return_val_if_fail (ps, NULL);
+	R_RETURN_VAL_IF_FAIL (ps, NULL);
 	if (!ps->out && create) {
 		ps->out = r_strbuf_new ("");
 	}
@@ -55,7 +55,7 @@ static inline bool printer_append(PrintInfo *nfo, const char *str) {
 }
 
 static inline bool printer_appendf(PrintInfo *nfo, const char *fmt, ...) {
-	r_return_val_if_fail (nfo && fmt, false);
+	R_RETURN_VAL_IF_FAIL (nfo && fmt, false);
 	RStrBuf *buf = printer_getout (nfo, true);
 	if (buf) {
 		va_list ap;
@@ -87,9 +87,9 @@ static inline PrState *printer_push_state(PrintInfo *nfo, bool prepend) {
 }
 
 static bool printer_pop_state(PrintInfo *nfo) {
-	r_return_val_if_fail (nfo->outstack && r_list_length (nfo->outstack), false);
+	R_RETURN_VAL_IF_FAIL (nfo->outstack && r_list_length (nfo->outstack), false);
 	PrState *ps = r_list_pop (nfo->outstack);
-	r_return_val_if_fail (ps, false);
+	R_RETURN_VAL_IF_FAIL (ps, false);
 	bool ret = true;
 	if (ps->prepend) {
 		pstate_drain (ps, true);
@@ -204,11 +204,11 @@ static inline const char *obj_varname(PrintInfo *nfo, PyObj *obj) {
 		case PY_SPLIT:
 		case PY_NOT_RIGHT:
 			obj->varname = r_str_newf ("META_x%" PFMT64x, obj->offset);
-			r_warn_if_reached ();
+			R_WARN_IF_REACHED ();
 			break;
 		default:
 			obj->varname = r_str_newf ("UNKOWN_x%" PFMT64x, obj->offset);
-			r_warn_if_reached ();
+			R_WARN_IF_REACHED ();
 			break;
 		}
 	}
@@ -260,9 +260,9 @@ static inline bool obj_has_reduce(PyObj *obj) {
 }
 
 static inline bool split_is_resolved(PrintInfo *nfo, PyObj *split) {
-	r_return_val_if_fail (split->type == PY_SPLIT, true);
+	R_RETURN_VAL_IF_FAIL (split->type == PY_SPLIT, true);
 	PyObj *red = split->split;
-	r_return_val_if_fail (obj_has_reduce (red), true);
+	R_RETURN_VAL_IF_FAIL (obj_has_reduce (red), true);
 	return red->reduce.resolved == nfo->recurse;
 }
 
@@ -440,7 +440,7 @@ static inline bool dump_reduce(PrintInfo *nfo, PyObj *obj) {
 }
 
 static inline bool dump_inst(PrintInfo *nfo, PyObj *obj) {
-	r_return_val_if_fail (obj->reduce.args->type == PY_TUPLE, false);
+	R_RETURN_VAL_IF_FAIL (obj->reduce.args->type == PY_TUPLE, false);
 	// if there are args, it acts just like reduce
 	if (r_list_length (obj->reduce.args->py_iter)) {
 		return dump_reduce (nfo, obj);
@@ -516,7 +516,7 @@ static inline bool iter_split_stop(PrintInfo *nfo, PyObj *obj_iter) {
 	}
 	PyObj *obj = r_list_iter_get_data (obj_iter->iter_next);
 	if (obj->type == PY_SPLIT) {
-		r_return_val_if_fail (obj_iter->type != PY_TUPLE, true); // tuples don't split
+		R_RETURN_VAL_IF_FAIL (obj_iter->type != PY_TUPLE, true); // tuples don't split
 
 		RListIter *next = r_list_iter_get_next (obj_iter->iter_next);
 		if (!next || !split_is_resolved (nfo, obj)) {
@@ -686,7 +686,7 @@ static inline bool dump_iter(PrintInfo *nfo, PyObj *obj) {
 			ret &= printer_append (nfo, " |= ");
 			break;
 		default:
-			r_warn_if_reached ();
+			R_WARN_IF_REACHED ();
 			ret = false;
 		}
 	} else {
@@ -775,7 +775,7 @@ static inline bool dump_oper_meth_s(PrintInfo *nfo, PyOper *pop, const char *met
 }
 
 static inline bool dump_oper_setitems(PrintInfo *nfo, PyOper *pop, const char *vn) {
-	r_return_val_if_fail (!(r_list_length (pop->stack) % 2), false);
+	R_RETURN_VAL_IF_FAIL (!(r_list_length (pop->stack) % 2), false);
 	bool iskey = true;
 	PyObj *obj;
 	RListIter *iter;
@@ -852,7 +852,7 @@ static inline int what_purge_intermediate(PrintInfo *nfo, PyObj *what) {
 			}
 		}
 	}
-	r_return_val_if_fail (purge_to, 1);
+	R_RETURN_VAL_IF_FAIL (purge_to, 1);
 
 
 	PSTATE (nfo, first) = true;
@@ -1018,7 +1018,7 @@ static inline bool dump_stack(PrintInfo *nfo, RList *stack, const char *n) {
 	printer_appendf (nfo, "%s## %s stack start, len %d%s\n", PALCOLOR (usercomment), n, len, PALCOLOR (reset));
 	PrState *ps = r_list_last (nfo->outstack);
 	ps->ret = false;
-	r_return_val_if_fail (ps, false);
+	R_RETURN_VAL_IF_FAIL (ps, false);
 	r_list_foreach (stack, iter, obj) {
 		len--;
 		printer_appendf (nfo, "%s## %s[%d] %s%s\n", PALCOLOR (usercomment), n, len, len == 0? "TOP": "", PALCOLOR (reset));

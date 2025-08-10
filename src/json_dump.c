@@ -293,7 +293,7 @@ static bool py_obj(PJ *pj, PyObj *obj, RList *path) {
 		ret &= pj_obj_what (pj, obj, path);
 		break;
 	default:
-		r_warn_if_reached ();
+		R_WARN_IF_REACHED ();
 		ret = false;
 	}
 	path_pop (path);
@@ -336,7 +336,7 @@ bool json_dump_state(PJ *pj, PMState *pvm) {
 			&& pj_end (pj);
 
 		if (ret && r_list_length (path)) {
-			r_warn_if_reached ();
+			R_WARN_IF_REACHED ();
 		}
 	}
 	r_list_free (path);

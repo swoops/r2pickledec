@@ -45,7 +45,7 @@ const char *py_type_to_name(PyType t) {
 		return "PY_BUFFER_RO";
 	case PY_NOT_RIGHT:
 	default:
-		r_warn_if_reached ();
+		R_WARN_IF_REACHED ();
 		return "UNKOWN";
 	}
 }
@@ -70,7 +70,7 @@ const char *py_op_to_name(PyOp t) {
 		return "OP_FAKE_SPLIT";
 	default:
 		R_LOG_ERROR ("Unkown opcode %d", t);
-		r_warn_if_reached ();
+		R_WARN_IF_REACHED ();
 		return "UNKOWN OPCODE";
 	}
 }
@@ -79,7 +79,7 @@ bool pytype_has_depth(PyType t) {
 	switch (t) {
 	case PY_NOT_RIGHT:
 	default:
-		r_warn_if_reached ();
+		R_WARN_IF_REACHED ();
 	case PY_INT:
 	case PY_STR:
 	case PY_BOOL:

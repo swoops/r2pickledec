@@ -330,7 +330,7 @@ static inline bool split_reduce(PMState *pvm, PyObj *obj) {
 }
 
 static inline bool py_what_addop(PMState *pvm, int argc, PyOp op) {
-	r_return_val_if_fail (argc > 0, false);
+	R_RETURN_VAL_IF_FAIL (argc > 0, false);
 
 	PyOper *pop = py_oper_new (pvm, op, false);
 	RList *args = list_pop_n (pvm->stack, argc);
@@ -475,7 +475,7 @@ static inline bool op_readonly_buffer(PMState *pvm) {
 }
 
 static inline PyObj *py_iter_new(PMState *pvm, PyType type) {
-	r_return_val_if_fail (pytype_has_depth (type), NULL);
+	R_RETURN_VAL_IF_FAIL (pytype_has_depth (type), NULL);
 	PyObj *obj = py_obj_new (pvm, type);
 	if (obj) {
 		obj->py_iter = r_list_new ();
@@ -531,7 +531,7 @@ static inline bool op_type_create_append(PMState *pvm, PyType t) {
 }
 
 static inline bool op_iter_n(PMState *pvm, int n, PyType type) {
-	r_return_val_if_fail (n <= 3, false);
+	R_RETURN_VAL_IF_FAIL (n <= 3, false);
 	PyObj *obj = py_iter_new (pvm, type);
 	if (obj) {
 		int i;
@@ -553,7 +553,7 @@ static inline bool op_iter_n(PMState *pvm, int n, PyType type) {
 }
 
 static inline bool stack_n_expected_type(RList *objl, int argc, PyType type) {
-	r_return_val_if_fail (argc >= 0, false);
+	R_RETURN_VAL_IF_FAIL (argc >= 0, false);
 	PyObj *obj;
 	RListIter *iter;
 	r_list_foreach_prev (objl, iter, obj) {
@@ -629,7 +629,7 @@ static inline bool op_setitem(PMState *pvm) {
 					r_list_pop (obj->py_iter); // prevent double free
 				}
 			} else {
-				r_warn_if_reached ();
+				R_WARN_IF_REACHED ();
 			}
 		}
 	}
